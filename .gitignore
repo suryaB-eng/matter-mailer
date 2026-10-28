@@ -1,0 +1,20 @@
+# Confidential assessment input already supplied in this folder
+/Copy of Co-op Technical Assignment - Winter 2027.pdf
+*.pdf
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+data/
+tmp/
+artifacts/
+*.log
+*.tgz
+*.tar.gz
+*.zip
+*.pem
+*.key
+.azure/
+.cache/
+!docker/playwright-seccomp.json

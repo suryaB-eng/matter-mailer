@@ -1,0 +1,20 @@
+#cloud-config
+# Ubuntu includes the operator group; predeclare the user with its existing group.
+users:
+  - name: operator
+    primary_group: operator
+    groups: [adm, sudo]
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    lock_passwd: true
+package_update: true
+packages:
+  - docker.io
+  - docker-compose-v2
+  - ca-certificates
+  - curl
+runcmd:
+  - [systemctl, enable, --now, docker]
+  - [usermod, -aG, docker, operator]
+  - [install, -d, -m, '0700', -o, operator, -g, operator, /opt/matter-mailer]
+  - [install, -d, -m, '0700', -o, '1000', -g, '1000', /data]

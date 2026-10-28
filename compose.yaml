@@ -1,0 +1,20 @@
+name: matter-mailer
+services:
+  app:
+    image: ${MATTER_MAILER_IMAGE:-matter-mailer:current}
+    # One-shot checks use compose run --rm. No restarting service yet.
+    restart: "no"
+    init: true
+    user: "1000:1000"
+    env_file:
+      - ${MATTER_MAILER_ENV_FILE:-/opt/matter-mailer/.env}
+    environment:
+      DATA_DIR: /data
+      SOURCE_BUNDLE_SHA256: ${SOURCE_BUNDLE_SHA256:-unknown}
+      IMAGE_ID: ${IMAGE_ID:-unknown}
+    volumes:
+      - /data:/data
+    shm_size: 256mb
+    security_opt:
+      - seccomp=./docker/playwright-seccomp.json
+    stop_grace_period: 30s
