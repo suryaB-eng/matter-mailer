@@ -6,7 +6,7 @@ import test from 'node:test';
 import { interpretMessage, type ModelFn } from '../src/interpret.js';
 import { archiveFilename, classifyHeader, fitReply, renderMime, replySubject, withinMimeLimit, type HeaderView } from '../src/mail.js';
 import { OVERLAP_NOTE } from '../src/matter.js';
-import { renderClarify, renderFetch, renderInterrupted, renderSystem, REQUEST_EXAMPLE } from '../src/reply.js';
+import { omitArchive, renderClarify, renderFetch, renderInterrupted, renderSystem, REQUEST_EXAMPLE } from '../src/reply.js';
 import { classifyRestart, openLedger, type NewMessage } from '../src/state.js';
 import type { FetchReport } from '../src/fetch.js';
 
@@ -166,6 +166,15 @@ test('replies state counts, overlap, and no empty archive', async () => {
   assert.equal(success.attachZip, true);
   assert.match(success.text, /Exhibits: 0/);
   assert.match(success.text, /Attached 1 source record and 1 file/);
+  const priced = report('success');
+  priced.metadata = [...priced.metadata, { label: 'Fee', value: '$25.00', view: 'matter overview' }];
+  assert.match(renderFetch(priced).text, /Fee: \$25\.00/);
+  const vague = renderClarify('missing');
+  assert.match(vague, /I need one matter number and one category/);
+  assert.doesNotMatch(vague, /^missing$/m);
+  const dropped = omitArchive(success.text, 'The archive was omitted because the assembled message exceeded the mail size limit.');
+  assert.doesNotMatch(dropped, /Attached /);
+  assert.match(dropped, /exceeded the mail size limit/);
   assert.match(renderClarify('conflict-matter'), new RegExp(REQUEST_EXAMPLE));
   assert.match(renderSystem('quota'), /temporarily unavailable/);
   assert.match(renderInterrupted(), /was not retried/);

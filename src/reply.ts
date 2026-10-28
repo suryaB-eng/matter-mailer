@@ -17,13 +17,19 @@ const CLARIFY: Record<string, string> = {
 
 function safeLine(value: string): string | null {
   const clean = value.replace(/[\r\n]+/g, ' ').trim();
-  return /^[\w .,:;()'/-]{1,180}$/.test(clean) ? clean : null;
+  return /^[\w .,:;()'/$-]{1,180}$/.test(clean) ? clean : null;
 }
 
 export function renderClarify(reason: string): string {
-  const known = CLARIFY[reason];
-  const detail = known ?? safeLine(reason) ?? 'I need one matter number and one category in your own words.';
+  const detail = CLARIFY[reason] ?? 'I need one matter number and one category in your own words.';
   return `${detail}\nSend one complete request.\n${REQUEST_EXAMPLE}`;
+}
+
+export function omitArchive(text: string, reason: string): string {
+  if (/Attached \d+ source records? and \d+ files?\./.test(text)) {
+    return text.replace(/Attached \d+ source records? and \d+ files?\./, reason);
+  }
+  return `${text}\n\n${reason}`;
 }
 
 export function renderSystem(reason: 'malformed' | 'ungrounded' | 'quota' | 'unavailable'): string {

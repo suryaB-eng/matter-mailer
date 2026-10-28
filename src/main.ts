@@ -11,7 +11,7 @@ import {
   type HeaderDecision, type ListedMessage, type Outgoing,
 } from './mail.js';
 import { MAX_ZIP_BYTES } from './matter.js';
-import { renderClarify, renderFetch, renderInterrupted, renderSystem } from './reply.js';
+import { omitArchive, renderClarify, renderFetch, renderInterrupted, renderSystem } from './reply.js';
 import { classifyRestart, openLedger, type Ledger, type MessageRecord, type NewMessage } from './state.js';
 
 const IDLE_MS = 30_000;
@@ -150,7 +150,7 @@ async function settle(config: Config, ledger: Ledger, model: ModelFn, message: L
   const report = await runFetch(decision.matter, decision.category, config.DATA_DIR, { budgetMs: 10 * 60_000 });
   const rendered = renderFetch(report);
   const attachment = rendered.attachZip ? await loadAttachment(config.DATA_DIR, report) : null;
-  const text = attachment || !rendered.attachZip ? rendered.text : `${rendered.text}\n\nNo archive is attached because the file failed a final check.`;
+  const text = attachment || !rendered.attachZip ? rendered.text : omitArchive(rendered.text, 'No archive is attached because the file failed a final check.');
   await guardedSend(config, ledger, message.gmailId, outgoing(row, text, attachment), 'sent', report.outcome, summary(report), advertised);
   await removeOneJob(config.DATA_DIR, report.jobDir);
   log('request-finished', { gmailId: message.gmailId, outcome: report.outcome, durationMs: Date.now() - started });

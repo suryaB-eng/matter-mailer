@@ -9,6 +9,7 @@ import { z } from 'zod';
 import type { Config } from './config.js';
 import { smtp } from './connections.js';
 import { coarseImapSince } from './probe-policy.js';
+import { omitArchive } from './reply.js';
 
 export const MAX_INCOMING_BYTES = 1_000_000;
 export const MAX_MIME_BYTES = 30_000_000;
@@ -134,7 +135,7 @@ export async function fitReply(agent: string, mail: Outgoing, advertised: number
   const without: Outgoing = {
     ...mail,
     attachment: null,
-    text: `${mail.text}\n\nThe archive was omitted because the assembled message exceeded the mail size limit.`,
+    text: omitArchive(mail.text, 'The archive was omitted because the assembled message exceeded the mail size limit.'),
   };
   if ((await renderMime(agent, without)).length <= mimeLimit(advertised)) return { mail: without, droppedZip: true, blocked: false };
   return { mail: without, droppedZip: true, blocked: true };
