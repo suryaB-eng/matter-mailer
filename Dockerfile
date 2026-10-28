@@ -19,5 +19,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 COPY --from=build --chown=node:node /app/dist ./dist
 USER node
 STOPSIGNAL SIGTERM
-ENTRYPOINT ["flock", "--nonblock", "/data/runtime.lock"]
-CMD ["node", "dist/cli.js", "doctor"]
+ENTRYPOINT ["sh", "-c", "exec 9>/data/runtime.lock; flock --nonblock 9 || { echo runtime-lock-busy; exit 1; }; exec \"$@\"", "--"]
+CMD ["node", "dist/main.js"]

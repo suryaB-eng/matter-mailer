@@ -10,7 +10,9 @@
     "test": "tsx --test tests/*.test.ts",
     "doctor": "node --env-file-if-exists=.env dist/cli.js doctor",
     "probe": "node --env-file-if-exists=.env dist/cli.js probe",
-    "fetch": "node dist/cli.js fetch"
+    "fetch": "node dist/cli.js fetch",
+    "agent": "node --env-file-if-exists=.env dist/main.js",
+    "inspect": "node --env-file-if-exists=.env dist/cli.js inspect"
   },
   "dependencies": {
     "@google/genai": "2.31.0",

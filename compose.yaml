@@ -2,8 +2,9 @@ name: matter-mailer
 services:
   app:
     image: ${MATTER_MAILER_IMAGE:-matter-mailer:current}
-    # One-shot checks use compose run --rm. No restarting service yet.
-    restart: "no"
+    # Default command is the single poller. One-shot doctor/probe/fetch override the command.
+    restart: unless-stopped
+    command: ["node", "dist/main.js"]
     init: true
     user: "1000:1000"
     env_file:
